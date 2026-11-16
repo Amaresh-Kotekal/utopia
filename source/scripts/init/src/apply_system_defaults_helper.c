@@ -2013,6 +2013,25 @@ int init_bootstrap_json (char *partner_nvram_obj, char *partner_etc_obj, char *P
    return 0;
 }
 
+static void set_psm_override_value(char *pName, char *pValue, char *pPartnerId)
+{
+   if (g_vBus_handle == NULL)
+   {
+      APPLY_PRINT("%s: PSM bus handle is unavailable for %s\n", __FUNCTION__, pName);
+      return;
+   }
+
+   APPLY_PRINT("%s: Applying override value %s to PSM record %s\n", __FUNCTION__, pValue, pName);
+   if (set_psm_record(pName, pValue) == CCSP_SUCCESS)
+   {
+      addParamInPartnersFile(pName, pPartnerId, pValue);
+   }
+   else
+   {
+      APPLY_PRINT("%s: Failed to set PSM record %s\n", __FUNCTION__, pName);
+   }
+}
+
 int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_obj, char *PartnerID)
 {
    APPLY_PRINT("%s\n", __FUNCTION__);
@@ -2346,6 +2365,7 @@ int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_ob
                   APPLY_PRINT("%s - Adding override-only parameter: %s = %s\n", __FUNCTION__, override_key, override_value);
                   
                   cJSON *bs_obj = cJSON_GetObjectItem(subitem_nvram_bs, override_key);
+                  int isPsmParam = (strstr(override_key, "dmsb.") != NULL || strstr(override_key, "X_AIRTIES_Obj") != NULL);
                   if (bs_obj == NULL)
                   {
                      cJSON *newParamObj = cJSON_CreateObject();
@@ -2357,17 +2377,7 @@ int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_ob
                      
                      cJSON_AddItemToObject(subitem_nvram_bs, override_key, newParamObj);
                      
-                     // Handle dmsb.* parameters - store in PSM database
-                     if (0 != strstr(override_key, "dmsb.") || 0 != strstr(override_key, "X_AIRTIES_Obj"))
-                     {
-                        if (psm_supported == 1)
-                        {
-                           APPLY_PRINT("Add override PSM value %s for param %s\n", override_value, override_key);
-                           addParamInPartnersFile(override_key, PartnerID, override_value);
-                           set_psm_record(override_key, override_value);
-                        }
-                     }
-                     else
+                     if (NULL == isPsmParam)
                      {
                         if (syscfg_supported == 1)
                         {
@@ -2376,6 +2386,20 @@ int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_ob
                            set_syscfg_partner_values(override_value, override_key);
                         }
                      }
+                  }
+                  else if (isPsmParam)
+                  {
+                     cJSON_ReplaceItemInObject(bs_obj, "DefaultValue", cJSON_CreateString(override_value));
+                     cJSON_ReplaceItemInObject(bs_obj, "BuildTime", cJSON_CreateString(getBuildTime()));
+                     cJSON_ReplaceItemInObject(bs_obj, "ActiveValue", cJSON_CreateString(override_value));
+                     cJSON_ReplaceItemInObject(bs_obj, "UpdateTime", cJSON_CreateString("-"));
+                     cJSON_ReplaceItemInObject(bs_obj, "UpdateSource", cJSON_CreateString("-"));
+                  }
+
+                  /* The syscfg pass may have created bootstrap metadata before the PSM pass runs. */
+                  if (isPsmParam && psm_supported == 1)
+                  {
+                     set_psm_override_value(override_key, override_value, PartnerID);
                   }
                }
             }
