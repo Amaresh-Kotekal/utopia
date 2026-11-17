@@ -2377,7 +2377,7 @@ int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_ob
                      
                      cJSON_AddItemToObject(subitem_nvram_bs, override_key, newParamObj);
                      
-                     if (NULL == isPsmParam)
+                     if (0 == isPsmParam)
                      {
                         if (syscfg_supported == 1)
                         {
@@ -2387,7 +2387,7 @@ int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_ob
                         }
                      }
                   }
-                  else if (isPsmParam)
+                  else if (1 == isPsmParam)
                   {
                      cJSON_ReplaceItemInObject(bs_obj, "DefaultValue", cJSON_CreateString(override_value));
                      cJSON_ReplaceItemInObject(bs_obj, "BuildTime", cJSON_CreateString(getBuildTime()));
