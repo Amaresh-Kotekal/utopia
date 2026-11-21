@@ -2013,25 +2013,6 @@ int init_bootstrap_json (char *partner_nvram_obj, char *partner_etc_obj, char *P
    return 0;
 }
 
-static void set_psm_override_value(char *pName, char *pValue, char *pPartnerId)
-{
-   if (g_vBus_handle == NULL)
-   {
-      APPLY_PRINT("%s: PSM bus handle is unavailable for %s\n", __FUNCTION__, pName);
-      return;
-   }
-
-   APPLY_PRINT("%s: Applying override value %s to PSM record %s\n", __FUNCTION__, pValue, pName);
-   if (set_psm_record(pName, pValue) == CCSP_SUCCESS)
-   {
-      addParamInPartnersFile(pName, pPartnerId, pValue);
-   }
-   else
-   {
-      APPLY_PRINT("%s: Failed to set PSM record %s\n", __FUNCTION__, pName);
-   }
-}
-
 int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_obj, char *PartnerID)
 {
    APPLY_PRINT("%s\n", __FUNCTION__);
@@ -2399,7 +2380,15 @@ int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_ob
                   /* The syscfg pass may have created bootstrap metadata before the PSM pass runs. */
                   if (isPsmParam && psm_supported == 1)
                   {
-                     set_psm_override_value(override_key, override_value, PartnerID);
+                     APPLY_PRINT("Add override PSM value %s for param %s\n", override_value, override_key);
+                     if (g_vBus_handle != NULL && set_psm_record(override_key, override_value) == CCSP_SUCCESS)
+                     {
+                        addParamInPartnersFile(override_key, PartnerID, override_value);
+                     }
+                     else
+                     {
+                        APPLY_PRINT("%s: Failed to set PSM record %s\n", __FUNCTION__, override_key);
+                     }
                   }
                }
             }
