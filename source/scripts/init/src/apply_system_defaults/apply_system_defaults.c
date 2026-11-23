@@ -2477,12 +2477,14 @@ STATIC int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner
 #endif /* LPM_MANAGER_SUPPORT */
                }
             }
+#if 0
             else
             {
                /* Key exists in bootstrap.json with same value
                   Ensure it's seeded in syscfg if not already present */
                addInSysCfgdDB(key, value);
             }
+#endif
          }
          param = param->next;
       }
