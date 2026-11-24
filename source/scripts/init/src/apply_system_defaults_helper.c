@@ -2346,7 +2346,6 @@ int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_ob
                   APPLY_PRINT("%s - Adding override-only parameter: %s = %s\n", __FUNCTION__, override_key, override_value);
                   
                   cJSON *bs_obj = cJSON_GetObjectItem(subitem_nvram_bs, override_key);
-                  //int isPsmParam = (strstr(override_key, "dmsb.") != NULL || strstr(override_key, "X_AIRTIES_Obj") != NULL);
                   if (bs_obj == NULL)
                   {
                      cJSON *newParamObj = cJSON_CreateObject();
@@ -2358,7 +2357,6 @@ int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_ob
                      
                      cJSON_AddItemToObject(subitem_nvram_bs, override_key, newParamObj);
                      
-                     //if (0 == isPsmParam)
                      // Handle dmsb.* parameters - store in PSM database
                      if (0 != strstr(override_key, "dmsb.") || 0 != strstr(override_key, "X_AIRTIES_Obj"))
                      {
@@ -2379,30 +2377,6 @@ int compare_partner_json_param (char *partner_nvram_bs_obj, char *partner_etc_ob
                         }
                      }
                   }
-#if 0
-                  else if (1 == isPsmParam)
-                  {
-                     cJSON_ReplaceItemInObject(bs_obj, "DefaultValue", cJSON_CreateString(override_value));
-                     cJSON_ReplaceItemInObject(bs_obj, "BuildTime", cJSON_CreateString(getBuildTime()));
-                     cJSON_ReplaceItemInObject(bs_obj, "ActiveValue", cJSON_CreateString(override_value));
-                     cJSON_ReplaceItemInObject(bs_obj, "UpdateTime", cJSON_CreateString("-"));
-                     cJSON_ReplaceItemInObject(bs_obj, "UpdateSource", cJSON_CreateString("-"));
-                  }
-
-                  /* The syscfg pass may have created bootstrap metadata before the PSM pass runs. */
-                  if (isPsmParam && psm_supported == 1)
-                  {
-                     APPLY_PRINT("Add override PSM value %s for param %s\n", override_value, override_key);
-                     if (g_vBus_handle != NULL && set_psm_record(override_key, override_value) == CCSP_SUCCESS)
-                     {
-                        addParamInPartnersFile(override_key, PartnerID, override_value);
-                     }
-                     else
-                     {
-                        APPLY_PRINT("%s: Failed to set PSM record %s\n", __FUNCTION__, override_key);
-                     }
-                  }
-#endif
                }
             }
             overrideParam = overrideParam->next;

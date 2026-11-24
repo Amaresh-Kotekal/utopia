@@ -511,9 +511,6 @@ PARTNER_ID=`syscfg get PartnerID`
 if [ "$PARTNER_ID" = "sky-uk" ] && [ "$MODEL_NUM" = "SCER11BEL" ]; then
     echo_t "[utopia][init] Partner ID is sky-uk and device is XER10, applying partner defaults for psm"
     apply_system_defaults_psm &
-elif [ "$VOICE_SUPPORTED" = "true" ]; then
-    echo_t "[utopia][init] Voice support is enabled, applying partner defaults for psm"
-    apply_system_defaults_psm &
 fi
 
 changeFilePermissions $SYSCFG_BKUP_FILE 400
