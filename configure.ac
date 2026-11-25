@@ -103,19 +103,6 @@ fi
 AM_CONDITIONAL(CCSP_PLATFORM_BCM, test "x$CCSP_PLATFORM" = xbcm)
 AM_CONDITIONAL(CCSP_PLATFORM_INTEL_PUMA7, test "x$CCSP_PLATFORM" = xintel_puma7)
 
-# Specify machine type
-AC_ARG_WITH([machine],
-[AC_HELP_STRING([--with-machine=MACHINE],
-                [specify the machine type])],
-[MACHINE=$withval],
-[MACHINE=''])
-if test x"${MACHINE}" != x; then
-  AC_DEFINE_UNQUOTED(MACHINE, "$MACHINE",
-                     [The machine type])
-fi
-
-AM_CONDITIONAL([MACHINE_SCXER10], [echo "$MACHINE" | grep -q "scxer10"])
-
 AM_CONDITIONAL([MULTILAN_FEATURE], [test "$MULTILAN_FEATURE" = "yes"])
 AM_CONDITIONAL([CPC_FIREWALL_ENABLE], [test "x$CPC_FIREWALL_ENABLE" = "xtrue"])
 AM_CONDITIONAL([ONESTACK_PRODUCT_REQ], [test "x$ONESTACK_PRODUCT_REQ" = "xtrue"])
@@ -279,6 +266,18 @@ AC_ARG_ENABLE([igmpmld],
            ],
         [enable_igmpmld=true])
 AM_CONDITIONAL([ENABLE_MCAST_SERVICE], [test x$enable_igmpmld = xtrue])
+
+AC_ARG_ENABLE([applySystemDefaultsPsm],
+         AS_HELP_STRING([--enable-applySystemDefaultsPsm],[Enable applySystemDefaultsPsm]),
+        [
+          case "${enableval}" in
+            yes) enable_applySystemDefaults_Psm=true ;;
+            no) enable_applySystemDefaults_Psm=false ;;
+            *) AC_MSG_ERROR([bad value ${enableval} for --enable-applySystemDefaultsPsm]) ;;
+          esac
+           ],
+        [enable_applySystemDefaults_Psm=true])
+AM_CONDITIONAL([ENABLE_APPLY_SYSTEM_DEFAULTS_PSM], [test x$enable_applySystemDefaults_Psm = xtrue])
 
 AC_CONFIG_FILES(
 	Makefile

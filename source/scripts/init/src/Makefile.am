@@ -19,7 +19,7 @@
 if PARTNER_DEFAULT_EXT
 SUBDIRS = execute_dir apply_system_defaults apply_system_defaults_psm
 else
-if MACHINE_SCXER10
+if ENABLE_APPLY_SYSTEM_DEFAULTS_PSM
 SUBDIRS = execute_dir apply_system_defaults apply_system_defaults_psm
 else
 SUBDIRS = execute_dir apply_system_defaults
